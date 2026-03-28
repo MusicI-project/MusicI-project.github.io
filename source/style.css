@@ -9,3 +9,6 @@ header {
   border:none;
   text-decoration: underline;
 }
+.header_contents {
+  display: flex;
+}

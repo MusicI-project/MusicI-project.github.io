@@ -16,9 +16,9 @@ header {
 .header_section {
   display: flex;
 }
-header input{
+.header_section input{
   padding: 0px;
 }
-header select{
+.header_section select{
   padding: 0px;
 }

@@ -13,3 +13,9 @@ header {
   display: flex;
    justify-content: flex-start;
 }
+.header_section {
+  display: flex;
+}
+header input{
+  padding: 5px;
+}

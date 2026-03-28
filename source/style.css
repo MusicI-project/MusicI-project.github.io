@@ -5,3 +5,7 @@ header {
   background-color: #265ed0;
   margin: 0;
 }
+.header_input {
+  border:none;
+  text-decoration: underline;
+}

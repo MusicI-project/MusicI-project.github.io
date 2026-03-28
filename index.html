@@ -20,8 +20,45 @@
     <link rel="canonical" href="https://MusicI-project.github.io/">
   </head>
   <body>
-    <header class="header">
-      
+    <header>
+      <div class="header_contents">
+        <p class="header_p">プロジェクト名</p>
+        <input type="search" id="title" name="title" class="header_input" />
+        <div class="header_section">
+          <p class="header_p">テンポ</p>
+          <input type="number" max="500" min="5" id="BPM" name="BPM" class="header_input" />
+        </div>
+        <div class="header_section">
+          <p class="header_p">拍子</p>
+          <select name="beat_1">
+            <option value="4">4</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="3">3</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+            <option value="13">13</option>
+            <option value="14">14</option>
+            <option value="15">15</option>
+            <option value="16">16</option>
+          </select>
+          <p class="1">/</p>
+          <select name="beat_2">
+            <option value="4">4</option>
+            <option value="1">1</option>
+            <option value="2">2</option>
+            <option value="8">8</option>
+            <option value="16">16</option>
+            <option value="32">32</option>
+            <option value="64">64</option>
+          </select>
+      </div>
     </header>
   </body>
 </html>

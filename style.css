@@ -11,4 +11,5 @@ header {
 }
 .header_contents {
   display: flex;
+   justify-content: flex-start;
 }

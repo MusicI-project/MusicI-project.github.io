@@ -38,3 +38,6 @@ body{
   color: #ffffff;
   margin-right: 5px;
 }
+#title {
+  width: 150px;
+}

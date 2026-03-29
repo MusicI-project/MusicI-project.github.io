@@ -8,10 +8,10 @@ header {
 .header_contents {
   display: flex;
   justify-content: flex-start;
-  margin: auto;
 }
 .header_section {
   display: flex;
+  margin: 10px;
 }
 .header_section input, .header_section select{
   border:none;

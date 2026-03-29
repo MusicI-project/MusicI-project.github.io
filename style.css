@@ -42,3 +42,7 @@ body{
 .title {
   width: 150px;
 }
+canvas {
+  display: block;
+  background: #111;
+}

@@ -14,7 +14,7 @@ header {
 }
 .header_section {
   display: flex;
-  align-items: center;
+  margin: 10px;
 }
 .header_section input, .header_section select{
   border:none;

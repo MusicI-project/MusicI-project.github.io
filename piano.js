@@ -74,8 +74,6 @@ function scheduler() {
 
   const secondsPerBeat = 60 / BPM;
   const stepTime = secondsPerBeat / 4; // 16分音符
-
-  let val = document.getElementById('BPM');
   
   while (nextTime < audio.currentTime + 0.1) {
     playStep(currentStep, nextTime);
@@ -115,3 +113,7 @@ function stop(){
 function setBPM(val){
   BPM = val;
 }
+
+document.getElementById("BPM").addEventListener("input", e => {
+  setBPM(Number(e.target.value));
+});

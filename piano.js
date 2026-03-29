@@ -2,10 +2,13 @@ const canvas = document.getElementById("roll");
 const ctx = canvas.getContext("2d");
 
 // 設定
-const cols = 32;
-const rows = 24;
+let cols = 32;
+let rows = 24;
 const cellW = 25;
 const cellH = 16;
+
+// BPM
+let BPM = 120;
 
 // データ
 let grid = Array.from({length: rows}, () => Array(cols).fill(0));
@@ -16,11 +19,9 @@ function draw() {
 
   for(let y=0;y<rows;y++){
     for(let x=0;x<cols;x++){
-      // グリッド
       ctx.strokeStyle = "#333";
       ctx.strokeRect(x*cellW, y*cellH, cellW, cellH);
 
-      // ノート
       if(grid[y][x]){
         ctx.fillStyle = "#0f0";
         ctx.fillRect(x*cellW, y*cellH, cellW, cellH);
@@ -28,10 +29,9 @@ function draw() {
     }
   }
 }
-
 draw();
 
-// クリックでON/OFF
+// クリック
 canvas.addEventListener("click", e => {
   const rect = canvas.getBoundingClientRect();
   const x = Math.floor((e.clientX - rect.left) / cellW);
@@ -44,18 +44,18 @@ canvas.addEventListener("click", e => {
 // 音
 const audio = new AudioContext();
 
-function playFreq(freq){
+function playFreqAtTime(freq, time){
   const osc = audio.createOscillator();
   const gain = audio.createGain();
 
-  osc.frequency.value = freq;
-  gain.gain.value = 0.1;
+  osc.frequency.setValueAtTime(freq, time);
+  gain.gain.setValueAtTime(0.1, time);
 
   osc.connect(gain);
   gain.connect(audio.destination);
 
-  osc.start();
-  osc.stop(audio.currentTime + 0.2);
+  osc.start(time);
+  osc.stop(time + 0.2);
 }
 
 // ピッチ変換
@@ -63,25 +63,53 @@ function pitchToFreq(p){
   return 440 * Math.pow(2, (p-69)/12);
 }
 
-// 再生
-let step = 0;
-let timer = null;
+// ===== BPM同期再生 =====
 
-function play(){
-  if(timer) return;
+let currentStep = 0;
+let nextTime = 0;
+let isPlaying = false;
 
-  timer = setInterval(()=>{
-    for(let y=0;y<rows;y++){
-      if(grid[y][step]){
-        playFreq(pitchToFreq(80 - y));
-      }
-    }
+function scheduler() {
+  if(!isPlaying) return;
 
-    step = (step+1) % cols;
-  },150);
+  const secondsPerBeat = 60 / BPM;
+  const stepTime = secondsPerBeat / 4; // 16分音符
+
+  while (nextTime < audio.currentTime + 0.1) {
+    playStep(currentStep, nextTime);
+
+    nextTime += stepTime;
+    currentStep = (currentStep + 1) % cols;
+  }
+
+  requestAnimationFrame(scheduler);
 }
 
+function playStep(step, time) {
+  for(let y=0;y<rows;y++){
+    if(grid[y][step]){
+      playFreqAtTime(pitchToFreq(80 - y), time);
+    }
+  }
+}
+
+// 再生
+function play(){
+  if(isPlaying) return;
+
+  isPlaying = true;
+  currentStep = 0;
+  nextTime = audio.currentTime;
+
+  scheduler();
+}
+
+// 停止
 function stop(){
-  clearInterval(timer);
-  timer = null;
+  isPlaying = false;
+}
+
+// BPM変更（UI用）
+function setBPM(val){
+  BPM = val;
 }

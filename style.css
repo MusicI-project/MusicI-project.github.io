@@ -15,7 +15,7 @@ header {
 }
 .header_section input, .header_section select{
   border:none;
-  background: transparent;
+  background: #858585;
   height: 30px;
 }
 p{

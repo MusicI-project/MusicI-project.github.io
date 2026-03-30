@@ -1,12 +1,19 @@
 const canvas = document.getElementById("roll");
 const ctx = canvas.getContext("2d");
-
+canvas.height = rows * cellH;
 // 設定
 let cols = 32;
-let rows = 24;
+let rows = 120;
 const cellW = 25;
 const cellH = 16;
-canvas.height = 120 * 16; // = 1920px
+
+function resize() {
+  canvas.width = cols * cellW;
+  canvas.height = rows * cellH;
+}
+
+resize();
+
 // BPM
 let BPM = 120;
 

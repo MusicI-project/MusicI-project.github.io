@@ -6,7 +6,7 @@ let cols = 32;
 let rows = 24;
 const cellW = 25;
 const cellH = 16;
-
+canvas.height = 120 * 16; // = 1920px
 // BPM
 let BPM = 120;
 

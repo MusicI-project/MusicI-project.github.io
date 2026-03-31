@@ -103,7 +103,7 @@ canvas.addEventListener("mouseup", e => {
 
 // 音
 
-function playFreqAtTime(freq, time){
+function playFreqAtTime(freq, time, duration){
   const osc = audio.createOscillator();
   const gain = audio.createGain();
 
@@ -114,7 +114,7 @@ function playFreqAtTime(freq, time){
   gain.connect(audio.destination);
 
   osc.start(time);
-  osc.stop(time + 0.2);
+  osc.stop(time + duration); // ←ここ重要
 }
 
 // ピッチ変換
@@ -144,11 +144,20 @@ function scheduler() {
 }
 
 function playStep(step, time) {
+  const secondsPerBeat = 60 / BPM;
+  const stepTime = secondsPerBeat / 4;
+
   for(let y=0;y<rows;y++){
     let note = grid[y][step];
 
     if(note){
-      playFreqAtTime(pitchToFreq(120 - y), time);
+      const duration = note.length * stepTime;
+
+      playFreqAtTime(
+        pitchToFreq(120 - y),
+        time,
+        duration
+      );
     }
   }
 }

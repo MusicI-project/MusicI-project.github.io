@@ -160,7 +160,10 @@ function scheduler() {
 function playStep(step, time) {
   const secondsPerBeat = 60 / BPM;
   const stepTime = secondsPerBeat / 4;
-
+  const duration = note.length * stepTime;
+  
+  if(!isFinite(duration) || duration <= 0) return;
+  
   for(let y=0;y<rows;y++){
     let note = grid[y][step];
 
@@ -198,10 +201,16 @@ function stop(){
 
 // BPM変更（UI用）
 function setBPM(val){
+  if(!isFinite(val) || val <= 0) return; // ←これ追加
+
   BPM = val;
   nextTime = audio.currentTime;
 }
 
 document.getElementById("BPM").addEventListener("input", e => {
-  setBPM(Number(e.target.value));
+  const val = Number(e.target.value);
+
+  if(!isFinite(val) || val <= 0) return;
+
+  setBPM(val);
 });

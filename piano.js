@@ -95,7 +95,7 @@ function scheduler() {
 function playStep(step, time) {
   for(let y=0;y<rows;y++){
     if(grid[y][step]){
-      playFreqAtTime(pitchToFreq(80 - y), time);
+      playFreqAtTime(pitchToFreq(120 - y), time);
     }
   }
 }

@@ -85,11 +85,20 @@ container.addEventListener("scroll", () => {
 });
 
 canvas.addEventListener("mousedown", e => {
-  isMouseDown = true;
-
   const rect = canvas.getBoundingClientRect();
-  startX = Math.floor((e.clientX - rect.left) / cellW);
-  startY = Math.floor((e.clientY - rect.top) / cellH);
+  const x = Math.floor((e.clientX - rect.left) / cellW);
+  const y = Math.floor((e.clientY - rect.top) / cellH);
+
+  if(e.button === 2){ // ←右クリック
+    grid[y][x] = null;
+    draw();
+    return;
+  }
+
+  // 左クリック（今までの処理）
+  isMouseDown = true;
+  startX = x;
+  startY = y;
 });
 
 canvas.addEventListener("mouseup", e => {

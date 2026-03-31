@@ -30,15 +30,14 @@ function draw() {
     }
   }
 }
-draw();
 
 function resize() {
   canvas.width = cols * cellW;
   canvas.height = rows * cellH;
-  draw();
 }
 
 resize();
+draw();
 
 // クリック
 canvas.addEventListener("click", e => {

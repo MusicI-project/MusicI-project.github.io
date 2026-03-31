@@ -106,6 +106,10 @@ function playStep(step, time) {
 function play(){
   if(isPlaying) return;
 
+  if(audio.state === "suspended"){
+    audio.resume();
+  }
+  
   isPlaying = true;
   currentStep = 0;
   nextTime = audio.currentTime;
@@ -121,6 +125,7 @@ function stop(){
 // BPM変更（UI用）
 function setBPM(val){
   BPM = val;
+  nextTime = audio.currentTime;
 }
 
 document.getElementById("BPM").addEventListener("input", e => {

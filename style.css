@@ -52,8 +52,10 @@ canvas {
 #keys {
   width: 80px;
   background: #222;
+  height: 400px;   /* ←固定 */
 }
 #roll_container {
   overflow: scroll;
   height: 400px;
+  overflow-y: scroll;
 }

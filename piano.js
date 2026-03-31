@@ -14,6 +14,7 @@ const audio = new AudioContext();
 let currentStep = 0;
 let nextTime = 0;
 let isPlaying = false;
+const container = document.getElementById("roll_container");
 
 const keysCanvas = document.getElementById("keys");
 const keysCtx = keysCanvas.getContext("2d");
@@ -30,6 +31,8 @@ function drawKeys(scrollY){
   for(let i=0;i<visibleRows;i++){
     let y = startRow + i;
 
+    if(y >= rows) continue; // ←これ重要
+
     const note = (120 - y) % 12;
     const isBlack = [1,3,6,8,10].includes(note);
 
@@ -37,12 +40,6 @@ function drawKeys(scrollY){
     keysCtx.fillRect(0, i*cellH, 80, cellH);
   }
 }
-
-container.addEventListener("scroll", () => {
-  drawKeys(container.scrollTop);
-});
-
-canvas.height = rows * cellH;
 
 // 描画
 function draw() {
@@ -78,10 +75,14 @@ function resize() {
   canvas.height = rows * cellH;
 }
 
+drawKeys(0);
 resize();
 draw();
 
 // ===== ノート入力（ドラッグ対応） =====
+container.addEventListener("scroll", () => {
+  drawKeys(container.scrollTop);
+});
 
 canvas.addEventListener("mousedown", e => {
   isMouseDown = true;

@@ -6,14 +6,16 @@ let cols = 64;
 let rows = 120;
 const cellW = 25;
 const cellH = 16;
+let BPM = 120;
+let grid = Array.from({length: rows}, () => Array(cols).fill(null));
+let isMouseDown = false;
+let startX, startY;
+const audio = new AudioContext();
+let currentStep = 0;
+let nextTime = 0;
+let isPlaying = false;
 
 canvas.height = rows * cellH;
-
-// BPM
-let BPM = 120;
-
-// データ
-let grid = Array.from({length: rows}, () => Array(cols).fill(null));
 
 // 描画
 function draw() {
@@ -54,9 +56,6 @@ draw();
 
 // ===== ノート入力（ドラッグ対応） =====
 
-let isMouseDown = false;
-let startX, startY;
-
 canvas.addEventListener("mousedown", e => {
   isMouseDown = true;
 
@@ -80,7 +79,6 @@ canvas.addEventListener("mouseup", e => {
 });
 
 // 音
-const audio = new AudioContext();
 
 function playFreqAtTime(freq, time){
   const osc = audio.createOscillator();
@@ -103,9 +101,6 @@ function pitchToFreq(p){
 
 // ===== BPM同期再生 =====
 
-let currentStep = 0;
-let nextTime = 0;
-let isPlaying = false;
 
 function scheduler() {
     if(!isPlaying) return;

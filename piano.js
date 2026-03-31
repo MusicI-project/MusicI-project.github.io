@@ -3,7 +3,7 @@ const ctx = canvas.getContext("2d");
 
 // 設定
 let cols = 64;
-let rows = 120;
+let rows = 122;
 const cellW = 25;
 const cellH = 16;
 let BPM = 120;

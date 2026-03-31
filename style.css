@@ -46,3 +46,14 @@ canvas {
   display: block;
   background: #111;
 }
+#wrap {
+  display: flex;
+}
+#keys {
+  width: 80px;
+  background: #222;
+}
+#roll_container {
+  overflow: scroll;
+  height: 400px;
+}

@@ -13,11 +13,11 @@ canvas.height = rows * cellH;
 let BPM = 120;
 
 // データ
-let grid = Array.from({length: rows}, () => Array(cols).fill(0));
+let grid = Array.from({length: rows}, () => Array(cols).fill(null));
 
 // 描画
 function draw() {
-  ctx.clearRect(0,0,canvas.width,canvas.height);
+ ctx.clearRect(0,0,canvas.width,canvas.height);
 
   for(let y=0;y<rows;y++){
     for(let x=0;x<cols;x++){
@@ -26,10 +26,22 @@ function draw() {
 
       if(grid[y][x]){
         ctx.fillStyle = "#0f0";
-        ctx.fillRect(x*cellW, y*cellH, cellW, cellH);
+        ctx.fillRect(
+        x * cellW,
+        y * cellH,
+        grid[y][x].length * cellW,
+        cellH
+        );
       }
     }
   }
+
+  ctx.strokeStyle = "red";
+  ctx.lineWidth = 2;
+  ctx.beginPath();
+  ctx.moveTo(currentStep * cellW, 0);
+  ctx.lineTo(currentStep * cellW, rows * cellH);
+  ctx.stroke();
 }
 
 function resize() {
@@ -40,13 +52,30 @@ function resize() {
 resize();
 draw();
 
-// クリック
-canvas.addEventListener("click", e => {
-  const rect = canvas.getBoundingClientRect();
-  const x = Math.floor((e.clientX - rect.left) / cellW);
-  const y = Math.floor((e.clientY - rect.top) / cellH);
+// ===== ノート入力（ドラッグ対応） =====
 
-  grid[y][x] ^= 1;
+let isMouseDown = false;
+let startX, startY;
+
+canvas.addEventListener("mousedown", e => {
+  isMouseDown = true;
+
+  const rect = canvas.getBoundingClientRect();
+  startX = Math.floor((e.clientX - rect.left) / cellW);
+  startY = Math.floor((e.clientY - rect.top) / cellH);
+});
+
+canvas.addEventListener("mouseup", e => {
+  if(!isMouseDown) return;
+  isMouseDown = false;
+
+  const rect = canvas.getBoundingClientRect();
+  const endX = Math.floor((e.clientX - rect.left) / cellW);
+
+  const length = Math.max(1, endX - startX + 1);
+
+  grid[startY][startX] = { length };
+
   draw();
 });
 
@@ -79,11 +108,11 @@ let nextTime = 0;
 let isPlaying = false;
 
 function scheduler() {
-  if(!isPlaying) return;
+    if(!isPlaying) return;
 
   const secondsPerBeat = 60 / BPM;
-  const stepTime = secondsPerBeat / 4; // 16分音符
-  
+  const stepTime = secondsPerBeat / 4;
+
   while (nextTime < audio.currentTime + 0.1) {
     playStep(currentStep, nextTime);
 
@@ -91,12 +120,16 @@ function scheduler() {
     currentStep = (currentStep + 1) % cols;
   }
 
+  draw();
+
   requestAnimationFrame(scheduler);
 }
 
 function playStep(step, time) {
   for(let y=0;y<rows;y++){
-    if(grid[y][step]){
+    let note = grid[y][step];
+
+    if(note){
       playFreqAtTime(pitchToFreq(120 - y), time);
     }
   }

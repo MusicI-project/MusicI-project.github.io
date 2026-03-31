@@ -18,25 +18,29 @@ let isPlaying = false;
 const keysCanvas = document.getElementById("keys");
 const keysCtx = keysCanvas.getContext("2d");
 
-keysCanvas.height = rows * cellH;
+keysCanvas.height = 400;
 keysCanvas.width = 80;
 
-function drawKeys(){
+function drawKeys(scrollY){
   keysCtx.clearRect(0,0,keysCanvas.width,keysCanvas.height);
 
-  for(let y=0;y<rows;y++){
-    const note = (120 - y) % 12;
+  const startRow = Math.floor(scrollY / cellH);
+  const visibleRows = Math.ceil(keysCanvas.height / cellH);
 
-    // 黒鍵判定
+  for(let i=0;i<visibleRows;i++){
+    let y = startRow + i;
+
+    const note = (120 - y) % 12;
     const isBlack = [1,3,6,8,10].includes(note);
 
     keysCtx.fillStyle = isBlack ? "#111" : "#ddd";
-    keysCtx.fillRect(0, y*cellH, 80, cellH);
-
-    keysCtx.strokeStyle = "#000";
-    keysCtx.strokeRect(0, y*cellH, 80, cellH);
+    keysCtx.fillRect(0, i*cellH, 80, cellH);
   }
 }
+
+container.addEventListener("scroll", () => {
+  drawKeys(container.scrollTop);
+});
 
 canvas.height = rows * cellH;
 

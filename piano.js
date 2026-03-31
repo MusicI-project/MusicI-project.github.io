@@ -33,7 +33,7 @@ function drawKeys(scrollY){
 
     if(y >= rows) continue; // ←これ重要
 
-    const note = (120 - y) % 12;
+    const note = (120 - y + 11) % 12;
     const isBlack = [1,3,6,8,10].includes(note);
 
     keysCtx.fillStyle = isBlack ? "#111" : "#ddd";

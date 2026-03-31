@@ -15,6 +15,29 @@ let currentStep = 0;
 let nextTime = 0;
 let isPlaying = false;
 
+const keysCanvas = document.getElementById("keys");
+const keysCtx = keysCanvas.getContext("2d");
+
+keysCanvas.height = rows * cellH;
+keysCanvas.width = 80;
+
+function drawKeys(){
+  keysCtx.clearRect(0,0,keysCanvas.width,keysCanvas.height);
+
+  for(let y=0;y<rows;y++){
+    const note = (120 - y) % 12;
+
+    // 黒鍵判定
+    const isBlack = [1,3,6,8,10].includes(note);
+
+    keysCtx.fillStyle = isBlack ? "#111" : "#ddd";
+    keysCtx.fillRect(0, y*cellH, 80, cellH);
+
+    keysCtx.strokeStyle = "#000";
+    keysCtx.strokeRect(0, y*cellH, 80, cellH);
+  }
+}
+
 canvas.height = rows * cellH;
 
 // 描画

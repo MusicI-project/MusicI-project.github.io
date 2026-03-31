@@ -7,12 +7,6 @@ let rows = 120;
 const cellW = 25;
 const cellH = 16;
 
-function resize() {
-  canvas.width = cols * cellW;
-  canvas.height = rows * cellH;
-}
-
-resize();
 
 // BPM
 let BPM = 120;
@@ -37,6 +31,14 @@ function draw() {
   }
 }
 draw();
+
+function resize() {
+  canvas.width = cols * cellW;
+  canvas.height = rows * cellH;
+  draw();
+}
+
+resize();
 
 // クリック
 canvas.addEventListener("click", e => {

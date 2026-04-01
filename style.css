@@ -62,9 +62,6 @@ button{
   color: #ffffff;
   border-radius: 20px;
 }
-#wrap {
-  display: block; /* ← flexやめる */
-}
 #roll_container {
   overflow: auto;
   height: 400px;
@@ -75,5 +72,7 @@ button{
 }
 main {
   margin-top: 50px;
+}
+.main_contents {
   display: flex;
 }

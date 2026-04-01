@@ -1,12 +1,23 @@
 const canvas = document.getElementById("roll");
 const ctx = canvas.getContext("2d");
 
-// 設定
+// ===== 設定 =====
 let cols = 64;
 let rows = 120;
 const cellW = 25;
 const cellH = 16;
 let BPM = 120;
+
+// ===== タイトル =====
+let projectName = "MyProject";
+
+function safeName(name){
+  return name.replace(/[\\/:*?"<>|]/g, "_");
+}
+
+document.getElementById("title").addEventListener("input", e => {
+  projectName = e.target.value || "MyProject";
+});
 
 // ===== トラック =====
 let tracks = [
@@ -297,9 +308,56 @@ async function exportWav(){
   const wav = audioBufferToWav(buffer);
   const blob = new Blob([wav], {type: "audio/wav"});
 
+  const name = safeName(projectName.trim() || "song");
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
-  a.download = "song.wav";
+  a.download = name + ".wav";
+  a.click();
+}
+
+// ===== MIPJ書き出し =====
+function midiToNote(midi){
+  const notes = ["C","C#","D","D#","E","F","F#","G","G#","A","A#","B"];
+  const name = notes[midi % 12];
+  const octave = Math.floor(midi / 12) - 1;
+  return name + octave;
+}
+
+function exportMIPJ(){
+  let text = "";
+
+  text += `$Project="${projectName}";\n\n`;
+
+  text += `$BPM=(\n1.1.0=${BPM}!\n);\n\n`;
+  text += `$Beat=(\n1.1.0=4/4!\n);\n\n`;
+
+  tracks.forEach(track => {
+    text += `$[${track.name}:${track.instrument}]=(\n`;
+
+    for(let y=0;y<rows;y++){
+      for(let x=0;x<cols;x++){
+        let note = track.grid[y][x];
+
+        if(note){
+          const midi = 120 - y;
+          const noteName = midiToNote(midi);
+          const beat = Math.floor(x / 4) + 1;
+          const tick = x % 4;
+
+          text += `1.${beat}.${tick}_${noteName},${note.length}_vol="100"!\n`;
+        }
+      }
+    }
+
+    text += `);\n\n`;
+  });
+
+  const blob = new Blob([text], {type:"text/plain"});
+  const name = safeName(projectName.trim() || "project");
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = name + ".mipj";
   a.click();
 }
 
@@ -311,3 +369,4 @@ document.getElementById("BPM").addEventListener("input", e => {
 });
 
 document.getElementById("wavEx").addEventListener("click", exportWav);
+document.getElementById("mipjEx").addEventListener("click", exportMIPJ);

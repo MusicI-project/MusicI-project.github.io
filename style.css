@@ -81,11 +81,11 @@ main {
 }
 .custom-file {
   display: inline-block;
-  padding: 8px 16px;
-  background: #4CAF50;
+  background: #858585;
   color: white;
   cursor: pointer;
-  border-radius: 5px;
+  border-radius: 20px;
+  height: 30px;
 }
 input[type="file"] {
   display: none;

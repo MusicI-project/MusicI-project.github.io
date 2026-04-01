@@ -55,6 +55,7 @@ canvas {
   width: 80px;
   background: #222;
   height: 400px;   /* ←固定 */
+  flex: none;
 }
 button{
   border:none;

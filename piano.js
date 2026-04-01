@@ -114,11 +114,6 @@ drawKeys(0);
 resize();
 draw();
 
-// ===== スクロール =====
-container.addEventListener("scroll", () => {
-  drawKeys(container.scrollTop);
-});
-
 // ===== 入力 =====
 canvas.addEventListener("mousedown", e => {
   const rect = canvas.getBoundingClientRect();

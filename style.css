@@ -86,6 +86,7 @@ main {
   cursor: pointer;
   border-radius: 20px;
   height: 30px;
+  text-align: center;
 }
 input[type="file"] {
   display: none;

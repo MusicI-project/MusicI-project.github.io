@@ -155,27 +155,27 @@ canvas.addEventListener("mouseup", e => {
 
 // ===== 音源 =====
 let defaultBuffer = null;
-let voiceBuffer = null;
+let pianoBuffer = null;
 
 async function loaddefault(){
   const res = await fetch("default.wav");
   defaultBuffer = await audio.decodeAudioData(await res.arrayBuffer());
 }
-async function loadVoice(){
-  const res = await fetch("voice.wav");
-  voiceBuffer = await audio.decodeAudioData(await res.arrayBuffer());
+async function loadpiano(){
+  const res = await fetch("piano.wav");
+  pianoBuffer = await audio.decodeAudioData(await res.arrayBuffer());
 }
 
 loaddefault();
-loadVoice();
+loadpiano();
 
 // ===== 音 =====
 function playInstrument(inst, freq, time, duration){
   if(inst === "default"){
     playBuffer(defaultBuffer, freq, time, duration);
   }
-  if(inst === "voice"){
-    playBuffer(voiceBuffer, freq, time, duration);
+  if(inst === "piano"){
+    playBuffer(pianoBuffer, freq, time, duration);
   }
 }
 

@@ -66,3 +66,14 @@ button{
   color: #ffffff;
   border-radius: 20px;
 }
+#roll_container {
+  display: flex;
+}
+
+#roll {
+  flex: none;
+}
+
+main {
+  margin-top: 60px;
+}

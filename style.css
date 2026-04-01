@@ -48,7 +48,6 @@ canvas {
   display: block;
   background: #111;
 }
-}
 #keys {
   width: 80px;
   background: #222;
@@ -70,7 +69,7 @@ button{
 #roll_container {
   overflow: auto;
   height: 400px;
-  display: flex; /* ← こっちに移す */
+  display: block; /* ← こっちに移す */
 }
 #roll {
   flex: none;

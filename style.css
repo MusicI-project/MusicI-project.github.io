@@ -59,3 +59,10 @@ canvas {
   height: 400px;
   overflow-y: scroll;
 }
+button{
+  border:none;
+  background: #858585;
+  height: 30px;
+  color: #ffffff;
+  border-radius: 20px;
+}

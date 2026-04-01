@@ -160,15 +160,14 @@ function scheduler() {
 function playStep(step, time) {
   const secondsPerBeat = 60 / BPM;
   const stepTime = secondsPerBeat / 4;
-  const duration = note.length * stepTime;
-  
-  if(!isFinite(duration) || duration <= 0) return;
-  
+
   for(let y=0;y<rows;y++){
     let note = grid[y][step];
 
     if(note){
       const duration = note.length * stepTime;
+
+      if(!isFinite(duration) || duration <= 0) continue;
 
       playFreqAtTime(
         pitchToFreq(120 - y),
@@ -252,6 +251,47 @@ function setBPM(val){
 
   BPM = val;
   nextTime = audio.currentTime;
+}
+
+async function exportWav(){
+  const length = cols * (60/BPM/4);
+  const sampleRate = 44100;
+
+  const offline = new OfflineAudioContext(1, length * sampleRate, sampleRate);
+
+  for(let step=0; step<cols; step++){
+    const time = step * (60/BPM/4);
+
+    for(let y=0;y<rows;y++){
+      let note = grid[y][step];
+
+      if(note){
+        const duration = note.length * (60/BPM/4);
+
+        const osc = offline.createOscillator();
+        const gain = offline.createGain();
+
+        osc.frequency.value = pitchToFreq(120 - y);
+        gain.gain.value = 0.1;
+
+        osc.connect(gain);
+        gain.connect(offline.destination);
+
+        osc.start(time);
+        osc.stop(time + duration);
+      }
+    }
+  }
+
+  const buffer = await offline.startRendering();
+
+  const wav = audioBufferToWav(buffer);
+  const blob = new Blob([wav], {type: "audio/wav"});
+
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "song.wav";
+  a.click();
 }
 
 document.getElementById("BPM").addEventListener("input", e => {

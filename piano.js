@@ -354,56 +354,58 @@ function exportMIPJ(){
   a.click();
 }
 
-function importMIPJ(text){
+function noteToMidi(note){
+  const map = {
+    "C":0,"C#":1,"D":2,"D#":3,"E":4,
+    "F":5,"F#":6,"G":7,"G#":8,"A":9,"A#":10,"B":11
+  };
 
+  const match = note.match(/^([A-G]#?)(\d)$/);
+  if(!match) return 60;
+
+  const pitch = map[match[1]];
+  const octave = Number(match[2]);
+
+  return pitch + (octave + 1) * 12;
+}
+
+function importMIPJ(text){
   tracks = [];
 
-  // BPM
-  const bpmMatch = text.match(/\$BPM=\([\s\S]*?=(\d+)!/);
-  if(bpmMatch){
-    BPM = Number(bpmMatch[1]);
-  }
-
-  // トラックごと取得
   const trackRegex = /\$\[(.+?):(.+?)\]=\(([\s\S]*?)\);/g;
+  let match;
 
-  let trackMatch;
-  while((trackMatch = trackRegex.exec(text)) !== null){
+  while((match = trackRegex.exec(text))){
+    const name = match[1];
+    const instrument = match[2];
+    const body = match[3];
 
-    const name = trackMatch[1];
-    const instrument = trackMatch[2];
-    const body = trackMatch[3];
+    const grid = Array.from({length: rows}, () => Array(cols).fill(null));
 
-    let newGrid = Array.from({length: rows}, () => Array(cols).fill(null));
+    const lines = body.split("!").map(l => l.trim()).filter(Boolean);
 
-    // ノート解析
-    const noteRegex = /(\d+)\.(\d+)\.(\d+)_([A-G]#?\d),(\d+)_vol="(\d+)"/g;
+    for(let line of lines){
+      // 例: 1.1.0_C4,4_vol="100"
+      const m = line.match(/(\d+)\.(\d+)\.(\d+)_([A-G]#?\d),(\d+)/);
+      if(!m) continue;
 
-    let noteMatch;
-    while((noteMatch = noteRegex.exec(body)) !== null){
-
-      const beat = Number(noteMatch[2]);
-      const tick = Number(noteMatch[3]);
-      const noteName = noteMatch[4];
-      const length = Number(noteMatch[5]);
+      const beat = Number(m[2]);
+      const tick = Number(m[3]);
+      const noteName = m[4];
+      const length = Number(m[5]);
 
       const x = (beat - 1) * 4 + tick;
       const midi = noteToMidi(noteName);
       const y = 120 - midi;
 
-      if(y >= 0 && y < rows && x < cols){
-        newGrid[y][x] = { length };
+      if(y >= 0 && y < rows && x >= 0 && x < cols){
+        grid[y][x] = { length };
       }
     }
 
-    tracks.push({
-      name,
-      instrument,
-      grid: newGrid
-    });
+    tracks.push({ name, instrument, grid });
   }
 
-  resize();
   draw();
 }
 

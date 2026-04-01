@@ -102,6 +102,9 @@ function draw() {
 function resize() {
   canvas.width = cols * cellW;
   canvas.height = rows * cellH;
+
+  canvas.style.width = canvas.width + "px";
+  canvas.style.height = canvas.height + "px";
 }
 
 drawKeys(0);

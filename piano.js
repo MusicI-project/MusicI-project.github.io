@@ -179,6 +179,53 @@ function playStep(step, time) {
   }
 }
 
+function audioBufferToWav(buffer) {
+  const numOfChan = buffer.numberOfChannels;
+  const length = buffer.length * numOfChan * 2 + 44;
+  const bufferArray = new ArrayBuffer(length);
+  const view = new DataView(bufferArray);
+  let offset = 0;
+
+  function writeString(s) {
+    for (let i = 0; i < s.length; i++) {
+      view.setUint8(offset++, s.charCodeAt(i));
+    }
+  }
+
+  function write16BitPCM(input) {
+    for (let i = 0; i < input.length; i++, offset += 2) {
+      let s = Math.max(-1, Math.min(1, input[i]));
+      view.setInt16(offset, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+    }
+  }
+
+  // RIFFヘッダ
+  writeString("RIFF");
+  view.setUint32(offset, 36 + buffer.length * 2, true); offset += 4;
+  writeString("WAVE");
+
+  // fmt
+  writeString("fmt ");
+  view.setUint32(offset, 16, true); offset += 4;
+  view.setUint16(offset, 1, true); offset += 2;
+  view.setUint16(offset, numOfChan, true); offset += 2;
+  view.setUint32(offset, buffer.sampleRate, true); offset += 4;
+  view.setUint32(offset, buffer.sampleRate * 2, true); offset += 4;
+  view.setUint16(offset, numOfChan * 2, true); offset += 2;
+  view.setUint16(offset, 16, true); offset += 2;
+
+  // data
+  writeString("data");
+  view.setUint32(offset, buffer.length * 2, true); offset += 4;
+
+  // 書き込み
+  for (let i = 0; i < numOfChan; i++) {
+    write16BitPCM(buffer.getChannelData(i));
+  }
+
+  return bufferArray;
+}
+
 // 再生
 function play(){
   if(isPlaying) return;
@@ -213,4 +260,8 @@ document.getElementById("BPM").addEventListener("input", e => {
   if(!isFinite(val) || val <= 0) return;
 
   setBPM(val);
+});
+
+document.getElementById("wavEx").addEventListener("click", () => {
+  exportWav();
 });

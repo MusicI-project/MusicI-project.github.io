@@ -70,4 +70,5 @@ main {
 }
 .main_contents {
   display: flex;
+  flex-direction: row
 }

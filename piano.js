@@ -8,6 +8,7 @@ const cellW = 25;
 const cellH = 16;
 let BPM = 120;
 
+
 // ===== タイトル =====
 let projectName = "MyProject";
 
@@ -59,7 +60,8 @@ function drawKeys(scrollY){
 
   for(let i=0;i<visibleRows;i++){
     let y = startRow + i;
-    if(y >= rows) continue;
+
+    if(y < 0 || y >= rows) continue; // ←強化
 
     const note = (120 - y + 11) % 12;
     const isBlack = [1,3,6,8,10].includes(note);
@@ -68,7 +70,8 @@ function drawKeys(scrollY){
     keysCtx.fillRect(0, i*cellH, 80, cellH);
   }
 }
-
+keysCanvas.style.width = "80px";
+keysCanvas.style.height = keysCanvas.height + "px";
 // ===== 描画 =====
 function draw() {
   ctx.clearRect(0,0,canvas.width,canvas.height);

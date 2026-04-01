@@ -72,3 +72,10 @@ main {
   display: flex;
   flex-direction: row
 }
+#roll_container {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-start;
+  overflow: auto;
+  height: 400px;
+}

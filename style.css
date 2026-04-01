@@ -48,8 +48,6 @@ canvas {
   display: block;
   background: #111;
 }
-#wrap {
-  display: block;
 }
 #keys {
   width: 80px;
@@ -66,16 +64,16 @@ button{
   color: #ffffff;
   border-radius: 20px;
 }
+#wrap {
+  display: block; /* ← flexやめる */
+}
 #roll_container {
-  display: flex;
   overflow: auto;
-  overflow: scroll;
   height: 400px;
-  overflow-y: scroll;
+  display: flex; /* ← こっちに移す */
 }
 #roll {
   flex: none;
-  width: max-content;
 }
 main {
   margin-top: 50px;

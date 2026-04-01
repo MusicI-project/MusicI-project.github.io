@@ -49,7 +49,7 @@ canvas {
   background: #111;
 }
 #wrap {
-  display: flex;
+  display: block;
 }
 #keys {
   width: 80px;

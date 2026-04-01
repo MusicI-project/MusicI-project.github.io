@@ -101,7 +101,6 @@ function draw() {
   ctx.lineTo(currentStep * cellW, rows * cellH);
   ctx.stroke();
 }
-drawKeys(container.scrollTop);
 function resize() {
   canvas.width = cols * cellW;
   canvas.height = rows * cellH;

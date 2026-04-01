@@ -140,19 +140,36 @@ canvas.addEventListener("mouseup", e => {
   draw();
 });
 
+let sampleBuffer = null;
+
+async function loadSample(){
+  const res = await fetch("default.wav"); // ←音源
+  const array = await res.arrayBuffer();
+  sampleBuffer = await audio.decodeAudioData(array);
+}
+
+loadSample();
+
 // ===== 音 =====
-function playFreqAtTime(freq, time, duration){
-  const osc = audio.createOscillator();
+function playSampleAtTime(freq, time, duration){
+  if(!sampleBuffer) return;
+
+  const source = audio.createBufferSource();
   const gain = audio.createGain();
 
-  osc.frequency.setValueAtTime(freq, time);
-  gain.gain.setValueAtTime(0.1, time);
+  source.buffer = sampleBuffer;
 
-  osc.connect(gain);
+  // ピッチ変更（ここ重要）
+  const baseFreq = 440; // A4想定
+  source.playbackRate.setValueAtTime(freq / baseFreq, time);
+
+  gain.gain.setValueAtTime(0.2, time);
+
+  source.connect(gain);
   gain.connect(audio.destination);
 
-  osc.start(time);
-  osc.stop(time + duration);
+  source.start(time);
+  source.stop(time + duration);
 }
 
 function pitchToFreq(p){
@@ -187,7 +204,7 @@ function playStep(step, time) {
 
         if(!isFinite(duration) || duration <= 0) continue;
 
-        playFreqAtTime(
+        playSampleAtTime(
           pitchToFreq(120 - y),
           time,
           duration

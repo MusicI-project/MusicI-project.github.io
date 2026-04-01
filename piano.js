@@ -447,3 +447,7 @@ document.getElementById("mipjIm").addEventListener("change", e => {
 
   reader.readAsText(file);
 });
+
+canvas.addEventListener("contextmenu", e => {
+  e.preventDefault();
+});

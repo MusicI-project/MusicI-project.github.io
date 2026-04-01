@@ -52,22 +52,15 @@ const keysCtx = keysCanvas.getContext("2d");
 keysCanvas.height = rows * cellH;
 keysCanvas.width = 80;
 
-function drawKeys(scrollY){
+function drawKeys(){
   keysCtx.clearRect(0,0,keysCanvas.width,keysCanvas.height);
 
-  const startRow = Math.floor(scrollY / cellH);
-  const visibleRows = Math.ceil(keysCanvas.height / cellH);
-
-  for(let i=0;i<visibleRows;i++){
-    let y = startRow + i;
-
-    if(y < 0 || y >= rows) continue; // ←強化
-
+  for(let y=0;y<rows;y++){
     const note = (120 - y + 11) % 12;
     const isBlack = [1,3,6,8,10].includes(note);
 
     keysCtx.fillStyle = isBlack ? "#111" : "#ddd";
-    keysCtx.fillRect(0, i*cellH, 80, cellH);
+    keysCtx.fillRect(0, y * cellH, 80, cellH);
   }
 }
 keysCanvas.style.width = "80px";

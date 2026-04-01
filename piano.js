@@ -69,7 +69,7 @@ function drawKeys(){
     keysCtx.fillRect(0, y * cellH, 80, cellH);
   }
 }
-drawKeys();
+
 
 // ===== 描画 =====
 function getColor(inst){
@@ -115,7 +115,7 @@ function resize() {
 
 resize();
 draw();
-
+drawKeys();
 // ===== 入力 =====
 canvas.addEventListener("mousedown", e => {
   const rect = canvas.getBoundingClientRect();

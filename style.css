@@ -62,11 +62,6 @@ button{
   color: #ffffff;
   border-radius: 20px;
 }
-#roll_container {
-  overflow: auto;
-  height: 400px;
-  display: block; /* ← こっちに移す */
-}
 #roll {
   flex: none;
 }

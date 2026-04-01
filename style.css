@@ -56,11 +56,6 @@ canvas {
   background: #222;
   height: 400px;   /* ←固定 */
 }
-#roll_container {
-  overflow: scroll;
-  height: 400px;
-  overflow-y: scroll;
-}
 button{
   border:none;
   background: #858585;
@@ -70,12 +65,15 @@ button{
 }
 #roll_container {
   display: flex;
+  overflow: auto;
+  overflow: scroll;
+  height: 400px;
+  overflow-y: scroll;
 }
-
 #roll {
   flex: none;
+  width: max-content;
 }
-
 main {
   margin-top: 60px;
 }

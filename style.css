@@ -52,7 +52,6 @@ canvas {
   background: #222;
   height: 400px;   /* ←固定 */
   flex: none;
-  position: sticky;
   left: 0;
 }
 button{
@@ -78,4 +77,5 @@ main {
   align-items: flex-start;
   overflow: auto;
   height: 400px;
+  position: relative;
 }

@@ -49,7 +49,7 @@ const container = document.getElementById("roll_container");
 const keysCanvas = document.getElementById("keys");
 const keysCtx = keysCanvas.getContext("2d");
 
-keysCanvas.height = 400;
+keysCanvas.height = rows * cellH;
 keysCanvas.width = 80;
 
 function drawKeys(scrollY){
@@ -106,7 +106,7 @@ function resize() {
   canvas.height = rows * cellH;
 
   canvas.style.width = canvas.width + "px";
-  canvas.style.height = canvas.height + "px";
+  keysCanvas.style.height = keysCanvas.height + "px";
 }
 
 drawKeys(0);

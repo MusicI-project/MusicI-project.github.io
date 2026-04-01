@@ -354,6 +354,59 @@ function exportMIPJ(){
   a.click();
 }
 
+function importMIPJ(text){
+
+  tracks = [];
+
+  // BPM
+  const bpmMatch = text.match(/\$BPM=\([\s\S]*?=(\d+)!/);
+  if(bpmMatch){
+    BPM = Number(bpmMatch[1]);
+  }
+
+  // トラックごと取得
+  const trackRegex = /\$\[(.+?):(.+?)\]=\(([\s\S]*?)\);/g;
+
+  let trackMatch;
+  while((trackMatch = trackRegex.exec(text)) !== null){
+
+    const name = trackMatch[1];
+    const instrument = trackMatch[2];
+    const body = trackMatch[3];
+
+    let newGrid = Array.from({length: rows}, () => Array(cols).fill(null));
+
+    // ノート解析
+    const noteRegex = /(\d+)\.(\d+)\.(\d+)_([A-G]#?\d),(\d+)_vol="(\d+)"/g;
+
+    let noteMatch;
+    while((noteMatch = noteRegex.exec(body)) !== null){
+
+      const beat = Number(noteMatch[2]);
+      const tick = Number(noteMatch[3]);
+      const noteName = noteMatch[4];
+      const length = Number(noteMatch[5]);
+
+      const x = (beat - 1) * 4 + tick;
+      const midi = noteToMidi(noteName);
+      const y = 120 - midi;
+
+      if(y >= 0 && y < rows && x < cols){
+        newGrid[y][x] = { length };
+      }
+    }
+
+    tracks.push({
+      name,
+      instrument,
+      grid: newGrid
+    });
+  }
+
+  resize();
+  draw();
+}
+
 // ===== イベント =====
 document.getElementById("BPM").addEventListener("input", e => {
   const val = Number(e.target.value);
@@ -363,3 +416,15 @@ document.getElementById("BPM").addEventListener("input", e => {
 
 document.getElementById("wavEx").addEventListener("click", exportWav);
 document.getElementById("mipjEx").addEventListener("click", exportMIPJ);
+document.getElementById("mipjIm").addEventListener("change", e => {
+  const file = e.target.files[0];
+  if(!file) return;
+
+  const reader = new FileReader();
+
+  reader.onload = ev => {
+    importMIPJ(ev.target.result);
+  };
+
+  reader.readAsText(file);
+});

@@ -452,7 +452,10 @@ function importMIPJ(text){
       const y = 120 - midi;
 
       if(y >= 0 && y < rows && x >= 0 && x < cols){
-        grid[y][x] = { length };
+        grid[y][x] = {
+          length,
+          instrument
+        };
       }
     }
 

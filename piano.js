@@ -8,6 +8,8 @@ const cellW = 25;
 const cellH = 16;
 let BPM = 120;
 
+const BPM_box = document.getElementById("BPM");
+
 // ===== 楽器 =====
 let currentInstrument = "default";
 
@@ -17,6 +19,8 @@ document.getElementById("instrument").addEventListener("change", e => {
 
 // ===== タイトル =====
 let projectName = "MyProject";
+
+const title_box = document.getElementById("title");
 
 function safeName(name){
   return name.replace(/[\\/:*?"<>|]/g, "_");
@@ -455,6 +459,24 @@ function importMIPJ(text){
     tracks.push({ name, instrument, grid });
   }
 
+  const projectN = text.match(/\$Project="(.+?)";/);
+  if(projectN){
+    projectName = projectN[1];
+
+    if(title_box){
+      title_box.value = projectName;
+    }
+  }
+
+  const projectB = text.match(/\$BPM=\(\s*1\.1\.0=(\d+)!/);
+  if(projectB){
+    BPM = Number(projectB[1]);
+
+    if(BPM_box){
+      BPM_box.value = BPM;
+    }
+  }
+  
   draw();
 }
 

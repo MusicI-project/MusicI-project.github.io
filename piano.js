@@ -334,17 +334,25 @@ async function exportWav(){
         if(note){
           const duration = note.length * (60/BPM/4);
 
-          const osc = offline.createOscillator();
-          const gain = offline.createGain();
+          if(!sampleBuffer) continue;
 
-          osc.frequency.value = pitchToFreq(120 - y);
-          gain.gain.value = 0.1;
+            const source = offline.createBufferSource();
+            const gain = offline.createGain();
 
-          osc.connect(gain);
-          gain.connect(offline.destination);
+            source.buffer = sampleBuffer;
 
-          osc.start(time);
-          osc.stop(time + duration);
+            // ピッチ変更（重要）
+            const baseFreq = 440; // A4基準
+            const freq = pitchToFreq(120 - y);
+            source.playbackRate.value = freq / baseFreq;
+
+            gain.gain.value = 0.2;
+
+            source.connect(gain);
+            gain.connect(offline.destination);
+
+            source.start(time);
+            source.stop(time + duration);
         }
       }
     }

@@ -162,12 +162,14 @@ let defaultBuffer = null;
 let pianoBuffer = null;
 
 async function loaddefault(){
-  const res = await fetch("default.wav");
-  defaultBuffer = await audio.decodeAudioData(await res.arrayBuffer());
+  const sample = await fetch("default.wav")
+  .then(r => r.arrayBuffer())
+  .then(b => offline.decodeAudioData(b));
 }
 async function loadpiano(){
-  const res = await fetch("piano.wav");
-  pianoBuffer = await audio.decodeAudioData(await res.arrayBuffer());
+  const sample = await fetch("piano.wav")
+  .then(r => r.arrayBuffer())
+  .then(b => offline.decodeAudioData(b));
 }
 
 loaddefault();

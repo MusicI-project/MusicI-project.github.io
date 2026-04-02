@@ -170,7 +170,7 @@ async function loaddefault(){
 }
 async function loadpiano(){
   const res = await fetch("piano.wav");
-  defaultBuffer = await audio.decodeAudioData(await res.arrayBuffer());
+  pianoBuffer = await audio.decodeAudioData(await res.arrayBuffer());
   const sample = await fetch("piano.wav")
   .then(r => r.arrayBuffer())
   .then(b => offline.decodeAudioData(b));

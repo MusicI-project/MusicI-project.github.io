@@ -13,8 +13,8 @@ except ImportError:
 DRIVE_URL_MODEL = "https://drive.google.com/uc?export=download&id=1CuPH1549BwfLokUlEWq945B_I6_wE4UL"
 DRIVE_URL_TOKENIZER = "https://drive.google.com/uc?export=download&id=1gPG71HJZ4WXMSELHXMbbepXvUnzFzgbn"
 
-MODEL_PATH = "ai_model.tflite"
-TOKENIZER_MODEL = "ai_spm.model"
+MODEL_PATH = "model.tflite"
+TOKENIZER_MODEL = "spm.model"
 MAX_SEQ_LEN = 128     # あなたのモデルの最大長に合わせてね
 
 def get_drive_id(url):

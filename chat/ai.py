@@ -10,8 +10,8 @@ try:
 except ImportError:
     from tensorflow import lite as litert
 
-DRIVE_URL_MODEL = "https://google.com/1CuPH1549BwfLokUlEWq945B_I6_wE4UL"
-DRIVE_URL_TOKENIZER = "https://google.com/1gPG71HJZ4WXMSELHXMbbepXvUnzFzgbn"
+DRIVE_URL_MODEL = "https://drive.google.com/uc?export=download&id=1CuPH1549BwfLokUlEWq945B_I6_wE4UL"
+DRIVE_URL_TOKENIZER = "https://drive.google.com/uc?export=download&id=1gPG71HJZ4WXMSELHXMbbepXvUnzFzgbn"
 
 MODEL_PATH = "ai_model.tflite"
 TOKENIZER_MODEL = "ai_spm.model"

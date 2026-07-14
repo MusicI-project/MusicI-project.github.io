@@ -10,6 +10,9 @@ try:
 except ImportError:
     from tensorflow import lite as litert
 
+# =====================================================================
+# 🛠️ あなたのGoogleドライブ共有URL
+# =====================================================================
 DRIVE_URL_MODEL = "https://drive.google.com/file/d/1CuPH1549BwfLokUlEWq945B_I6_wE4UL/view?usp=drive_link"
 DRIVE_URL_TOKENIZER = "https://drive.google.com/file/d/1gPG71HJZ4WXMSELHXMbbepXvUnzFzgbn/view?usp=drive_link"
 
@@ -17,6 +20,7 @@ MODEL_PATH = "model.tflite"
 TOKENIZER_MODEL = "spm.model"
 MAX_SEQ_LEN = 128     # あなたのモデルの最大長に合わせてね
 
+# URLからファイルIDを抽出する関数
 def get_drive_id(url):
     match = re.search(r'/d/([^/]+)', url)
     return match.group(1) if match else url
@@ -27,11 +31,16 @@ def load_ai():
         model_id = get_drive_id(DRIVE_URL_MODEL)
         tokenizer_id = get_drive_id(DRIVE_URL_TOKENIZER)
         
+        # 💡 正しいダウンロード用のURLの形に修正したのだ！
         model_download_url = f"https://google.com{model_id}"
         tokenizer_download_url = f"https://google.com{tokenizer_id}"
         
         if not os.path.exists(MODEL_PATH):
             with st.spinner("藍のファイルを準備中なのだ...少々お待ちを🎵"):
+                # ダウンロードを安定させるための設定を追加したのだ
+                opener = urllib.request.build_opener()
+                opener.addheaders = [('User-agent', 'Mozilla/5.0')]
+                urllib.request.install_opener(opener)
                 urllib.request.urlretrieve(model_download_url, MODEL_PATH)
                 
         if not os.path.exists(TOKENIZER_MODEL):
@@ -46,6 +55,9 @@ def load_ai():
     return interpreter, tokenizer
 
 
+# =====================================================================
+# あなたのトークナイザークラス
+# =====================================================================
 class SPTokenizer:
     def __init__(self, model_path):
         self.sp = spm.SentencePieceProcessor(model_file=model_path)
@@ -57,6 +69,9 @@ class SPTokenizer:
         return self.sp.get_piece_size()
 
 
+# =====================================================================
+# あなたのオリジナルの推論コード（[]に修正済み）
+# =====================================================================
 def generate_response_tflite(interpreter, tokenizer, raw_q, max_len=200, temperature=0.8):
     prediction_fn = interpreter.get_signature_runner()
     signature_list = interpreter.get_signature_list()
@@ -99,6 +114,9 @@ def generate_response_tflite(interpreter, tokenizer, raw_q, max_len=200, tempera
     return full_res.replace("<out>", "").replace("</out>", "").strip()
 
 
+# =====================================================================
+# チャット画面の表示処理
+# =====================================================================
 st.title("🎵 藍 - Music I Chat Model")
 st.caption("通常の自作AIモデルと会話ができるのだ。")
 

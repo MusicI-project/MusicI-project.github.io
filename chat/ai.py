@@ -12,8 +12,11 @@ except ImportError:
 # =====================================================================
 # 🛠️ ファイル名の確認（GitHubにアップロードした本物の名前に合わせてね）
 # =====================================================================
-MODEL_PATH = "model.tflite"       # 💡もし「藍.tflite」とかならその名前に変えてね！
-TOKENIZER_MODEL = "spm.model"     # 💡もしファイル名が違ったらその名前に変えてね！
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# 💡 フォルダ内のファイルパスを正確に指定
+MODEL_PATH = os.path.join(BASE_DIR, "model.tflite")       
+TOKENIZER_MODEL = os.path.join(BASE_DIR, "spm.model")
 MAX_SEQ_LEN = 128                 # あなたのモデルの最大長に合わせてね
 
 # =====================================================================

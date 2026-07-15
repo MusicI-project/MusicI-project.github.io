@@ -1,62 +1,23 @@
 import streamlit as st
 import numpy as np
 import os
-import re
-import urllib.request
 import sentencepiece as spm
 
+# LiteRT (TensorFlow Lite) のインポート
 try:
     import litert
 except ImportError:
     from tensorflow import lite as litert
 
 # =====================================================================
-# 🛠️ あなたのGoogleドライブ共有URL
+# 🛠️ ファイル名の確認（GitHubにアップロードした本物の名前に合わせてね）
 # =====================================================================
-DRIVE_URL_MODEL = "https://drive.google.com/file/d/1CuPH1549BwfLokUlEWq945B_I6_wE4UL/view?usp=drive_link"
-DRIVE_URL_TOKENIZER = "https://drive.google.com/file/d/1gPG71HJZ4WXMSELHXMbbepXvUnzFzgbn/view?usp=drive_link"
-
-MODEL_PATH = "model.tflite"
-TOKENIZER_MODEL = "spm.model"
-MAX_SEQ_LEN = 128     # あなたのモデルの最大長に合わせてね
-
-# URLからファイルIDを抽出する関数
-def get_drive_id(url):
-    match = re.search(r'/d/([^/]+)', url)
-    return match.group(1) if match else url
-
-@st.cache_resource
-def load_ai():
-    try:
-        model_id = get_drive_id(DRIVE_URL_MODEL)
-        tokenizer_id = get_drive_id(DRIVE_URL_TOKENIZER)
-        
-        # 💡 正しいダウンロード用のURLの形に修正したのだ！
-        model_download_url = f"https://google.com{model_id}"
-        tokenizer_download_url = f"https://google.com{tokenizer_id}"
-        
-        if not os.path.exists(MODEL_PATH):
-            with st.spinner("藍のファイルを準備中なのだ...少々お待ちを🎵"):
-                # ダウンロードを安定させるための設定を追加したのだ
-                opener = urllib.request.build_opener()
-                opener.addheaders = [('User-agent', 'Mozilla/5.0')]
-                urllib.request.install_opener(opener)
-                urllib.request.urlretrieve(model_download_url, MODEL_PATH)
-                
-        if not os.path.exists(TOKENIZER_MODEL):
-            with st.spinner("トークナイザーを準備中なのだ...🎵"):
-                urllib.request.urlretrieve(tokenizer_download_url, TOKENIZER_MODEL)
-    except Exception as e:
-        st.error(f"Googleドライブからのダウンロードに失敗したのだ。共有設定が『全員』になっているか確認してね：{e}")
-
-    interpreter = litert.Interpreter(model_path=MODEL_PATH)
-    interpreter.allocate_tensors()
-    tokenizer = SPTokenizer(TOKENIZER_MODEL)
-    return interpreter, tokenizer
-
+MODEL_PATH = "model.tflite"       # 💡もし「藍.tflite」とかならその名前に変えてね！
+TOKENIZER_MODEL = "spm.model"     # 💡もしファイル名が違ったらその名前に変えてね！
+MAX_SEQ_LEN = 128                 # あなたのモデルの最大長に合わせてね
 
 # =====================================================================
-# あなたのトークナイザークラス
+# あなたのトークナイザークラス（変更なし）
 # =====================================================================
 class SPTokenizer:
     def __init__(self, model_path):
@@ -68,9 +29,17 @@ class SPTokenizer:
     def vocab_size(self):
         return self.sp.get_piece_size()
 
+@st.cache_resource
+def load_ai():
+    # GitHubから直接ロードするからエラーが起きないし爆速なのだ！
+    interpreter = litert.Interpreter(model_path=MODEL_PATH)
+    interpreter.allocate_tensors()
+    tokenizer = SPTokenizer(TOKENIZER_MODEL)
+    return interpreter, tokenizer
+
 
 # =====================================================================
-# あなたのオリジナルの推論コード（[]に修正済み）
+# あなたのオリジナルの推論コード（変更なし）
 # =====================================================================
 def generate_response_tflite(interpreter, tokenizer, raw_q, max_len=200, temperature=0.8):
     prediction_fn = interpreter.get_signature_runner()

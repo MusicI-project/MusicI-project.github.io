@@ -10,14 +10,25 @@ except ImportError:
     from tensorflow import lite as litert
 
 # =====================================================================
-# 🛠️ ファイル名の確認（GitHubにアップロードした本物の名前に合わせてね）
+# 🛠️ フォルダ内のファイルパスの基本設定
 # =====================================================================
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
-
-# 💡 フォルダ内のファイルパスを正確に指定
-MODEL_PATH = os.path.join(BASE_DIR, "model.tflite")       
-TOKENIZER_MODEL = os.path.join(BASE_DIR, "spm.model")
 MAX_SEQ_LEN = 128                 # あなたのモデルの最大長に合わせてね
+
+# =====================================================================
+# 🎛️ サイドバーでモデルを切り替える仕組みなのだ！
+# =====================================================================
+st.sidebar.title("🛠️ モデルチェンジ設定")
+
+# 💡 選択肢にしたいモデルの名前をここに増やすだけで、何個でも追加できるのだ！
+model_options = ["ai"] 
+selected_model = st.sidebar.selectbox("動かす藍ちゃんを選ぶのだ：", model_options)
+
+# 選択された名前に合わせてファイルパスを自動生成するのだ
+MODEL_PATH = os.path.join(BASE_DIR, f"model_{selected_model}.tflite")       
+TOKENIZER_MODEL = os.path.join(BASE_DIR, f"spm_{selected_model}.model")
+
+st.sidebar.info(f"現在ロード中: model_{selected_model}.tflite")
 
 # =====================================================================
 # あなたのトークナイザークラス（変更なし）
@@ -32,12 +43,17 @@ class SPTokenizer:
     def vocab_size(self):
         return self.sp.get_piece_size()
 
+# 💡 モデル名（selected_model）ごとにキャッシュを分けて、切り替えを高速化するのだ！
 @st.cache_resource
-def load_ai():
-    # GitHubから直接ロードするからエラーが起きないし爆速なのだ！
-    interpreter = litert.Interpreter(model_path=MODEL_PATH)
+def load_ai(model_path, tokenizer_path):
+    # ファイルが存在するかチェックする安全装置なのだ
+    if not os.path.exists(model_path) or not os.path.exists(tokenizer_path):
+        st.error(f"ファイルが見つからないのだ！ {os.path.basename(model_path)} と {os.path.basename(tokenizer_path)} が同じフォルダにあるか確認してね。")
+        st.stop()
+        
+    interpreter = litert.Interpreter(model_path=model_path)
     interpreter.allocate_tensors()
-    tokenizer = SPTokenizer(TOKENIZER_MODEL)
+    tokenizer = SPTokenizer(tokenizer_path)
     return interpreter, tokenizer
 
 
@@ -92,18 +108,21 @@ def generate_response_tflite(interpreter, tokenizer, raw_q, max_len=200, tempera
 st.title("🎵 藍 - Music I Chat Model")
 st.caption("通常の自作AIモデルと会話ができるのだ。")
 
-interpreter, tokenizer = load_ai()
+# 引数に選ばれたパスを渡すようにしたのだ
+interpreter, tokenizer = load_ai(MODEL_PATH, TOKENIZER_MODEL)
 
-if "messages_A" not in st.session_state:
-    st.session_state.messages_A = []
+# 💡 モデルをチェンジした時に、前のモデルのチャット履歴が混ざらないように部屋を分けるのだ！
+session_key = f"messages_{selected_model}"
+if session_key not in st.session_state:
+    st.session_state[session_key] = []
 
-for msg in st.session_state.messages_A:
+for msg in st.session_state[session_key]:
     current_avatar = "🎵" if msg["role"] == "assistant" else "👤"
     with st.chat_message(msg["role"], avatar=current_avatar):
         st.markdown(msg["content"])
 
 if prompt := st.chat_input("藍にメッセージを入力してね..."):
-    st.session_state.messages_A.append({"role": "user", "content": prompt})
+    st.session_state[session_key].append({"role": "user", "content": prompt})
     with st.chat_message("user", avatar="👤"):
         st.markdown(prompt)
 
@@ -117,4 +136,4 @@ if prompt := st.chat_input("藍にメッセージを入力してね..."):
                 res = f"ごめんね、うまくお話しできなかったのだ…（エラー原因: {e}）"
         
         st.markdown(res)
-        st.session_state.messages_A.append({"role": "assistant", "content": res})
+        st.session_state[session_key].append({"role": "assistant", "content": res})

@@ -16,19 +16,41 @@ BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 MAX_SEQ_LEN = 128                 # あなたのモデルの最大長に合わせてね
 
 # =====================================================================
-# 🎛️ サイドバーでモデルを切り替える仕組みなのだ！
+# 🎭 キャラクターたちのプロフィール設定（ここを自由に変えてね！）
 # =====================================================================
-st.sidebar.title("🛠️ モデルチェンジ設定")
+# 💡 ここにキャラクターの設定を登録するだけで、何人でも増やせるのだ！
+AI_CHARACTERS = {
+    "ai": {
+        "name": "藍 - Music I Chat Model",
+        "caption": "コードに特化したAIモデルと会話ができるのだ。",
+        "icon": "aicon.png"  # 📂 藍ちゃんのイラスト画像名
+    },
+    "ROA": {
+        "name": "ROA - Music I Chat Model",
+        "caption": "コードは苦手だけど、木管楽器のアンサンブルが得意なのだ",
+        "icon": "ROA"
+    }
+}
 
-# 💡 選択肢にしたいモデルの名前をここに増やすだけで、何個でも追加できるのだ！
-model_options = ["ai","ROA"] 
-selected_model = st.sidebar.selectbox("動かすAIを選ぶのだ：", model_options)
+# ユーザー（あなた）のアイコン画像名
+USER_ICON_NAME = "user_icon.png"
 
-# 選択された名前に合わせてファイルパスを自動生成するのだ
-MODEL_PATH = os.path.join(BASE_DIR, f"model_{selected_model}.tflite")       
-TOKENIZER_MODEL = os.path.join(BASE_DIR, f"spm_{selected_model}.model")
+# =====================================================================
+# 🎛️ サイドバーでAIを切り替える仕組み
+# =====================================================================
+st.sidebar.title("🛠️ キャラクターチェンジ")
 
-st.sidebar.info(f"現在ロード中: model_{selected_model}.tflite")
+# 登録されているキャラクターのキー（"ai", "music", "chat"）を選択肢にするのだ
+selected_key = st.sidebar.selectbox("お話しするAIを選ぶのだ：", list(AI_CHARACTERS.keys()))
+
+# いま選ばれているキャラクターの情報をシュッと取り出すのだ！
+current_ai = AI_CHARACTERS[selected_key]
+
+# 選択された名前に合わせてファイルパスを自動生成
+MODEL_PATH = os.path.join(BASE_DIR, f"model_{selected_key}.tflite")       
+TOKENIZER_MODEL = os.path.join(BASE_DIR, f"spm_{selected_key}.model")
+
+st.sidebar.info(f"現在ロード中: model_{selected_key}.tflite")
 
 # =====================================================================
 # あなたのトークナイザークラス（変更なし）
@@ -43,10 +65,8 @@ class SPTokenizer:
     def vocab_size(self):
         return self.sp.get_piece_size()
 
-# 💡 モデル名（selected_model）ごとにキャッシュを分けて、切り替えを高速化するのだ！
 @st.cache_resource
 def load_ai(model_path, tokenizer_path):
-    # ファイルが存在するかチェックする安全装置なのだ
     if not os.path.exists(model_path) or not os.path.exists(tokenizer_path):
         st.error(f"ファイルが見つからないのだ！ {os.path.basename(model_path)} と {os.path.basename(tokenizer_path)} が同じフォルダにあるか確認してね。")
         st.stop()
@@ -64,9 +84,9 @@ def generate_response_tflite(interpreter, tokenizer, raw_q, max_len=200, tempera
     prediction_fn = interpreter.get_signature_runner()
     signature_list = interpreter.get_signature_list()
 
-    sig_key = list(signature_list.keys())[0]
-    input_name = signature_list[sig_key]['inputs'][0]
-    output_key = signature_list[sig_key]['outputs'][0]
+    sig_key = list(signature_list.keys())
+    input_name = signature_list[sig_key]['inputs']
+    output_key = signature_list[sig_key]['outputs']
 
     prompt = f"<in>{raw_q}</in><out>"
     input_ids = tokenizer.encode(prompt)
@@ -79,7 +99,7 @@ def generate_response_tflite(interpreter, tokenizer, raw_q, max_len=200, tempera
             current_seq = current_seq[-MAX_SEQ_LEN:]
 
         pad_len = MAX_SEQ_LEN - len(current_seq)
-        padded_ids = current_seq + [0] * pad_len
+        padded_ids = current_seq + * pad_len
 
         input_np = np.array([padded_ids], dtype=np.int64)
         output = prediction_fn(**{input_name: input_np})
@@ -103,35 +123,47 @@ def generate_response_tflite(interpreter, tokenizer, raw_q, max_len=200, tempera
 
 
 # =====================================================================
-# チャット画面の表示処理
+# 🎭 チャット画面の表示処理（選んだAIのプロフィールに自動変身！）
 # =====================================================================
-st.title("🎵 藍 - Music I Chat Model")
-st.caption("通常の自作AIモデルと会話ができるのだ。")
+# 💡 タイトルと説明文を選ばれたAIのデータに書き換えるのだ！
+st.title(f"🎵 {current_ai['name']}")
+st.caption(current_ai['caption'])
 
-# 引数に選ばれたパスを渡すようにしたのだ
 interpreter, tokenizer = load_ai(MODEL_PATH, TOKENIZER_MODEL)
 
-# 💡 モデルをチェンジした時に、前のモデルのチャット履歴が混ざらないように部屋を分けるのだ！
-session_key = f"messages_{selected_model}"
+# モデルごとにチャット履歴の部屋を分けるのだ
+session_key = f"messages_{selected_key}"
 if session_key not in st.session_state:
     st.session_state[session_key] = []
 
+# パスを安全に解決するための設定
+# 💡 画像があれば使い、なければ名前の最初の1文字を自動でアイコンにする魔法のコードなのだ！
+target_icon_path = os.path.join(BASE_DIR, current_ai['icon'])
+
+if os.path.exists(target_icon_path) and current_ai['icon'] != "":
+    ai_icon_path = target_icon_path  # イラスト画像があるからそれを使うのだ！
+else:
+    ai_icon_path = current_ai['name'][0]  # 画像がないから名前の「最初の1文字」をアイコンにするのだ！
+
+user_icon_path = "👤"
+
+# 過去のメッセージを表示
 for msg in st.session_state[session_key]:
-    current_avatar = "🎵" if msg["role"] == "assistant" else "👤"
+    current_avatar = ai_icon_path if msg["role"] == "assistant" else user_icon_path
     with st.chat_message(msg["role"], avatar=current_avatar):
         st.markdown(msg["content"])
 
-if prompt := st.chat_input("藍にメッセージを入力してね..."):
+if prompt := st.chat_input(f"{current_ai['name']} にメッセージを入力してね..."):
     st.session_state[session_key].append({"role": "user", "content": prompt})
-    with st.chat_message("user", avatar="👤"):
+    with st.chat_message("user", avatar=user_icon_path):
         st.markdown(prompt)
 
-    with st.chat_message("assistant", avatar="🎵"):
-        with st.spinner("藍が一生懸命考えているのだ...🎵"):
+    with st.chat_message("assistant", avatar=ai_icon_path):
+        with st.spinner(f"{current_ai['name']} が一生懸命考えているのだ...🎵"):
             try:
                 res = generate_response_tflite(interpreter, tokenizer, prompt)
                 if "image_model" in res:
-                    res = "🎵「ごめんね、いまは画像ステージの準備中なのだ！もう少し待っててね！」"
+                    res = f"🎵「ごめんね、いまは画像ステージの準備中なのだ！もう少し待っててね！」"
             except Exception as e:
                 res = f"ごめんね、うまくお話しできなかったのだ…（エラー原因: {e}）"
         

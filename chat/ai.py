@@ -28,7 +28,7 @@ AI_CHARACTERS = {
     "ROA": {
         "name": "ROA - Music I Chat Model",
         "caption": "コードは苦手だけど、木管楽器のアンサンブルが得意なのだ",
-        "icon": "ROA"
+        "icon": "🎶"
     }
 }
 
@@ -147,7 +147,7 @@ target_icon_path = os.path.join(BASE_DIR, current_ai['icon'])
 if os.path.exists(target_icon_path) and current_ai['icon'] != "":
     ai_icon_path = target_icon_path
 else:
-    ai_icon_path = current_ai['name'][0]  # 名前の最初の1文字（例: 「藍」「奏」）
+    ai_icon_path = current_ai['name']
 
 user_icon_path = os.path.join(BASE_DIR, USER_ICON_NAME)
 if not os.path.exists(user_icon_path):

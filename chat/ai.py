@@ -23,12 +23,14 @@ AI_CHARACTERS = {
     "ai": {
         "name": "藍 - Music I Chat Model",
         "caption": "コードに特化したAIモデルと会話ができるのだ。",
-        "icon": "aicon.png"  # 📂 藍ちゃんのイラスト画像名
+        "icon": "aicon.png",
+        "temperature": "0.7"
     },
     "ROA": {
         "name": "ROA - Music I Chat Model",
         "caption": "コードは苦手だけど、木管楽器のアンサンブルが得意なのだ",
-        "icon": "🎶"
+        "icon": "🎶",
+        "temperature": "0.5"
     }
 }
 
@@ -167,7 +169,12 @@ if prompt := st.chat_input(f"{current_ai['name']} にメッセージを入力し
     with st.chat_message("assistant", avatar=ai_icon_path):
         with st.spinner(f"{current_ai['name']} が一生懸命考えているのだ...🎵"):
             try:
-                res = generate_response_tflite(interpreter, tokenizer, prompt)
+                res = generate_response_tflite(
+                    interpreter, 
+                    tokenizer, 
+                    prompt, 
+                    temperature=current_ai['temperature']
+                )
                 if "image_model" in res:
                     res = f"🎵「ごめんね、いまは画像ステージの準備中なのだ！もう少し待っててね！」"
             except Exception as e:

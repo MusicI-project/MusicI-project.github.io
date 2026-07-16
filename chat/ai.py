@@ -173,7 +173,7 @@ if prompt := st.chat_input(f"{current_ai['name']} にメッセージを入力し
                     interpreter, 
                     tokenizer, 
                     prompt, 
-                    temperature=current_ai['temperature']
+                    temperature=float(current_ai['temperature'])
                 )
                 if "image_model" in res:
                     res = f"🎵「ごめんね、いまは画像ステージの準備中なのだ！もう少し待っててね！」"

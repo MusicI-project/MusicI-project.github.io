@@ -147,7 +147,7 @@ target_icon_path = os.path.join(BASE_DIR, current_ai['icon'])
 if os.path.exists(target_icon_path) and current_ai['icon'] != "":
     ai_icon_path = target_icon_path
 else:
-    ai_icon_path = current_ai['name']
+    ai_icon_path = "🎵"
 
 user_icon_path = os.path.join(BASE_DIR, USER_ICON_NAME)
 if not os.path.exists(user_icon_path):

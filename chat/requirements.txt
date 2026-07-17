@@ -2,3 +2,4 @@ tensorflow
 sentencepiece
 numpy
 streamlit
+pykakasi

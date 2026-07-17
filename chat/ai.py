@@ -32,13 +32,15 @@ AI_CHARACTERS = {
         "name": "ROA - Music I Chat Model",
         "caption": "コードは苦手だけど、木管楽器のアンサンブルが得意なのだ",
         "icon": "🎶",
-        "temperature": "0.5"
+        "temperature": "0.5",
+        "voice_folder": ""
     },
     "RIA": {
         "name": "RIA - Music I Chat Model",
         "caption": "弦楽器主体の壮大なオーケストラJ-popが得意だけどベースがとても苦手なのだ",
         "icon": "RIA",
-        "temperature": "0.3"
+        "temperature": "0.3",
+        "voice_folder": ""
     },
     "konohaA": {
         "name": "狐美このはA - Music I Chat Model",

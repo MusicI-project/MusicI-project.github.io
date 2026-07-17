@@ -26,7 +26,8 @@ AI_CHARACTERS = {
         "name": "藍 - Music I Chat Model",
         "caption": "コードに特化したAIモデルと会話ができるのだ。",
         "icon": "aicon.png",
-        "temperature": "0.7"
+        "temperature": "0.7",
+        "voice_folder": ""
     },
     "ROA": {
         "name": "ROA - Music I Chat Model",

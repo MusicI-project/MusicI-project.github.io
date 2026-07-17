@@ -4,6 +4,7 @@ import os
 import sentencepiece as spm
 import gc  # 💡 メモリを強制的に掃除するための秘密兵器なのだ！
 
+
 # LiteRT (TensorFlow Lite) のインポート
 try:
     import litert
@@ -41,7 +42,98 @@ AI_CHARACTERS = {
 }
 
 USER_ICON_NAME = "user_icon.png"
+def generate_utau_speech(text, folder_name):
+    voice_dir = os.path.join(BASE_DIR, folder_name)
+    if not os.path.exists(voice_dir):
+        return None
 
+    # 1. pykakasiを使って、漢字・カタカナ混じりの文章を爆速でひらがなにするのだ！
+    kks = pykakasi.kakasi()
+    result = kks.convert(text)
+    
+    # 変換されたパーツ（ひらがな）をガチャンと1つの文章に合体させるのだ
+    translated_text = "".join([item['hira'] for item in result])
+    
+    # 残った記号（！や...など）を消去して、純度100%のひらがなだけにするのだ
+    clean_text = re.sub(r'[^ぁ-んー]', '', translated_text)
+
+    # 2. 原音設定（oto.ini）を解析するのだ
+    oto_config = {}
+    oto_path = os.path.join(voice_dir, "oto.ini")
+    
+    if os.path.exists(oto_path):
+        for encoding in ["shift_jis", "utf-8"]:
+            try:
+                with open(oto_path, "r", encoding=encoding) as f:
+                    for line in f:
+                        if "=" in line:
+                            filename_part, params_part = line.strip().split("=", 1)
+                            params = params_part.split(",")
+                            alias = params if params else filename_part.replace(".wav", "")
+                            left_blank = float(params) if len(params) > 1 and params else 0.0
+                            right_blank = float(params) if len(params) > 3 and params else 0.0
+                            
+                            oto_config[alias] = {
+                                "file": filename_part,
+                                "left": left_blank,
+                                "right": right_blank
+                            }
+                break
+            except Exception:
+                continue
+
+    wav_bytes_list = []
+    
+    # 3. 1文字ずつ原音設定に合わせてノイズをカットして集めるのだ
+    for char in clean_text:
+        config = oto_config.get(char, {"file": f"{char}.wav", "left": 0.0, "right": 0.0})
+        wav_path = os.path.join(voice_dir, config["file"])
+        
+        if os.path.exists(wav_path):
+            try:
+                with wave.open(wav_path, 'rb') as w:
+                    params = w.getparams()
+                    framerate = w.getframerate()
+                    
+                    left_frame = int((config["left"] / 1000.0) * framerate)
+                    total_frames = w.getnframes()
+                    if config["right"] >= 0:
+                        right_frame = int((config["right"] / 1000.0) * framerate)
+                        end_frame = total_frames - right_frame
+                    else:
+                        end_frame = left_frame + int((abs(config["right"]) / 1000.0) * framerate)
+                    
+                    left_frame = max(0, min(left_frame, total_frames))
+                    end_frame = max(left_frame, min(end_frame, total_frames))
+                    
+                    w.setpos(left_frame)
+                    frames_to_read = end_frame - left_frame
+                    audio_data = w.readframes(frames_to_read)
+                    
+                    mem_wav = io.BytesIO()
+                    with wave.open(mem_wav, 'wb') as temp_w:
+                        temp_w.setparams(params)
+                        temp_w.writeframes(audio_data)
+                    wav_bytes_list.append(mem_wav.getvalue())
+            except Exception:
+                pass
+
+    if not wav_bytes_list:
+        return None
+
+    # 4. 綺麗なパーツたちを1本にガチャンと合体して出力！
+    output_io = io.BytesIO()
+    try:
+        with wave.open(io.BytesIO(wav_bytes_list), 'rb') as first_wav:
+            wav_params = first_wav.getparams()
+            with wave.open(output_io, 'wb') as output_wav:
+                output_wav.setparams(wav_params)
+                for wav_bytes in wav_bytes_list:
+                    with wave.open(io.BytesIO(wav_bytes), 'rb') as w:
+                        output_wav.writeframes(w.readframes(w.getnframes()))
+        return output_io.getvalue()
+    except Exception:
+        return None
 # =====================================================================
 # 🎛️ サイドバーでAIを切り替える仕組み
 # =====================================================================
@@ -188,3 +280,7 @@ if prompt := st.chat_input(f"{current_ai['name']} にメッセージを入力し
         
         st.markdown(res)
         st.session_state[session_key].append({"role": "assistant", "content": res})
+        
+utau_voice = generate_utau_speech(res, current_ai['voice_folder'])
+        if utau_voice:
+            st.audio(utau_voice, format="audio/wav", autoplay=True)

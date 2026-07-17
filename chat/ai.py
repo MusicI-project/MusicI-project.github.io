@@ -80,7 +80,7 @@ def generate_utau_speech(text, folder_name):
                         filename_part, params_part = line.strip().split("=", 1)
                         params = params_part.split(",")
                         
-                        # UTAU仕様: [エイリアス, 左ブランク, 固定範囲, 右ブランク, サボリ範囲, 先行発声]
+                        # ⭕【ここを修正！】インデックス指定（[0], [1], [3]）を完璧に修復したのだ！
                         alias = params[0] if (len(params) > 0 and params[0] != "") else filename_part.replace(".wav", "")
                         left_blank = float(params[1]) if len(params) > 1 and params[1] != "" else 0.0
                         right_blank = float(params[3]) if len(params) > 3 and params[3] != "" else 0.0
@@ -97,8 +97,7 @@ def generate_utau_speech(text, folder_name):
     combined_frames = b""
     wav_params = None
     
-    # 💡【ここをカスタム！】1文字を何ミリ秒の長さに統一したいか決めるのだ！
-    # （例: 150.0 なら、全ての文字が一律で150ミリ秒＝0.15秒の等間隔テンポになるよ）
+    # 💡 1文字を何ミリ秒の長さに統一したいか決めるのだ（150ms = 0.15秒）
     EACH_CHAR_MS = 150.0
     
     # 3. 1文字ずつ切り出して「音声データ（波形データ）」を一定長にして結合
@@ -116,7 +115,7 @@ def generate_utau_speech(text, folder_name):
                     total_frames = w.getnframes()
                     bytes_per_frame = w.getsampwidth() * w.getnchannels()
                     
-                    # 💡 1文字に必要な固定のフレーム数を計算するのだ
+                    # 1文字に必要な固定のフレーム数を計算
                     fixed_char_frames = int((EACH_CHAR_MS / 1000.0) * framerate)
                     
                     # ミリ秒からフレーム数への変換
@@ -133,25 +132,20 @@ def generate_utau_speech(text, folder_name):
                     left_frame = max(0, min(left_frame, total_frames))
                     end_frame = max(left_frame, min(end_frame, total_frames))
                     
-                    # カット抽出（oto.iniの設定に基づく生の切り出し）
+                    # カット抽出
                     w.setpos(left_frame)
                     frames_to_read = end_frame - left_frame
                     audio_data = w.readframes(frames_to_read)
                     
-                    # 💡【長さ一律化の魔法】
-                    # 切り出したデータが規定の長さ（fixed_char_frames）より長ければカットし、
-                    # 短ければ無音（\x00）を足して、1文字ごとの長さを完全に一定に揃えるのだ！
+                    # 長さ一律化の処理（長ければカット、短ければ無音埋め）
                     actual_bytes = len(audio_data)
                     required_bytes = fixed_char_frames * bytes_per_frame
                     
                     if actual_bytes > required_bytes:
-                        # 長すぎる場合はお尻をカット
                         audio_data = audio_data[:required_bytes]
                     elif actual_bytes < required_bytes:
-                        # 短すぎる場合は無音（0データ）で引き伸ばす安全装置
                         audio_data += b'\x00' * (required_bytes - actual_bytes)
                     
-                    # 完全に長さが揃った波形データを後ろにガチャンと結合
                     combined_frames += audio_data
             except Exception:
                 pass

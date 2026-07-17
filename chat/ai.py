@@ -94,7 +94,7 @@ def generate_utau_speech(text, folder_name):
             except Exception:
                 continue
 
-    combined_frames = b""
+        combined_frames = b""
     wav_params = None
     
     # 💡 1文字を何ミリ秒の長さに統一したいか決めるのだ（150ms = 0.15秒）
@@ -105,6 +105,25 @@ def generate_utau_speech(text, folder_name):
         config = oto_config.get(char, {"file": f"{char}.wav", "left": 0.0, "right": 0.0})
         wav_path = os.path.join(voice_dir, config["file"])
         
+        # 💡【ここを修正・追加！】もし「っ」で、かつファイルが存在しない場合の特別処理なのだ！
+        if char == "っ" and not os.path.exists(wav_path):
+            try:
+                # 基準となるwav_paramsがまだない場合は、標準的なフォーマットを仮で作っておく安全装置
+                if wav_params is None:
+                    # チャンネル数2(ステレオ), サンプリングサイズ2byte(16bit), レート44100Hz
+                    # （最初のファイルが読み込まれたらそっちに上書きされるから安心だよ）
+                    combined_frames += b'\x00' * int((EACH_CHAR_MS / 1000.0) * 44100 * 4)
+                else:
+                    # 既に読み込み済みのフォーマットに合わせて、ピッタリ1文字分の無音（0データ）を作るのだ！
+                    framerate = wav_params.framerate
+                    bytes_per_frame = wav_params.sampwidth * wav_params.nchannels
+                    fixed_char_frames = int((EACH_CHAR_MS / 1000.0) * framerate)
+                    combined_frames += b'\x00' * (fixed_char_frames * bytes_per_frame)
+                continue  # 「っ」の処理はこれで終わりだから、次の文字に進むのだ！
+            except Exception:
+                pass
+                
+        # 通常の文字（ファイルが存在する場合）の処理
         if os.path.exists(wav_path):
             try:
                 with wave.open(wav_path, 'rb') as w:

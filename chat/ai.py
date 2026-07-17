@@ -97,9 +97,12 @@ def generate_utau_speech(text, folder_name):
     combined_frames = b""
     wav_params = None
     
-    # 3. 1文字ずつ切り出して「音声データ（波形データ）」のみを結合
+    # 💡【ここをカスタム！】1文字を何ミリ秒の長さに統一したいか決めるのだ！
+    # （例: 150.0 なら、全ての文字が一律で150ミリ秒＝0.15秒の等間隔テンポになるよ）
+    EACH_CHAR_MS = 150.0
+    
+    # 3. 1文字ずつ切り出して「音声データ（波形データ）」を一定長にして結合
     for char in clean_text:
-        # 該当文字がoto.iniにない場合はデフォルト値を設定
         config = oto_config.get(char, {"file": f"{char}.wav", "left": 0.0, "right": 0.0})
         wav_path = os.path.join(voice_dir, config["file"])
         
@@ -111,29 +114,44 @@ def generate_utau_speech(text, folder_name):
                     
                     framerate = w.getframerate()
                     total_frames = w.getnframes()
+                    bytes_per_frame = w.getsampwidth() * w.getnchannels()
+                    
+                    # 💡 1文字に必要な固定のフレーム数を計算するのだ
+                    fixed_char_frames = int((EACH_CHAR_MS / 1000.0) * framerate)
                     
                     # ミリ秒からフレーム数への変換
                     left_frame = int((config["left"] / 1000.0) * framerate)
                     
                     # UTAUの右ブランク仕様の再現
                     if config["right"] >= 0:
-                        # 正の値：末尾からのカット量
                         right_frame = int((config["right"] / 1000.0) * framerate)
                         end_frame = total_frames - right_frame
                     else:
-                        # 負の値：左ブランクからの純粋な長さ（絶対値）
                         end_frame = left_frame + int((abs(config["right"]) / 1000.0) * framerate)
                     
                     # ガード処理
                     left_frame = max(0, min(left_frame, total_frames))
                     end_frame = max(left_frame, min(end_frame, total_frames))
                     
-                    # カット抽出
+                    # カット抽出（oto.iniの設定に基づく生の切り出し）
                     w.setpos(left_frame)
                     frames_to_read = end_frame - left_frame
                     audio_data = w.readframes(frames_to_read)
                     
-                    # 波形データだけを後ろにガチャンと結合
+                    # 💡【長さ一律化の魔法】
+                    # 切り出したデータが規定の長さ（fixed_char_frames）より長ければカットし、
+                    # 短ければ無音（\x00）を足して、1文字ごとの長さを完全に一定に揃えるのだ！
+                    actual_bytes = len(audio_data)
+                    required_bytes = fixed_char_frames * bytes_per_frame
+                    
+                    if actual_bytes > required_bytes:
+                        # 長すぎる場合はお尻をカット
+                        audio_data = audio_data[:required_bytes]
+                    elif actual_bytes < required_bytes:
+                        # 短すぎる場合は無音（0データ）で引き伸ばす安全装置
+                        audio_data += b'\x00' * (required_bytes - actual_bytes)
+                    
+                    # 完全に長さが揃った波形データを後ろにガチャンと結合
                     combined_frames += audio_data
             except Exception:
                 pass
@@ -148,6 +166,7 @@ def generate_utau_speech(text, folder_name):
         w_out.writeframes(combined_frames)
         
     return out_wav.getvalue()
+
 # =====================================================================
 # 🎛️ サイドバーでAIを切り替える仕組み
 # =====================================================================

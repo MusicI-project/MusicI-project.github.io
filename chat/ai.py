@@ -4,6 +4,7 @@ import os
 import sentencepiece as spm
 import gc  # 💡 メモリを強制的に掃除するための秘密兵器なのだ！
 import pykakasi
+import re
 
 # LiteRT (TensorFlow Lite) のインポート
 try:

@@ -281,6 +281,8 @@ if prompt := st.chat_input(f"{current_ai['name']} にメッセージを入力し
         st.markdown(res)
         st.session_state[session_key].append({"role": "assistant", "content": res})
         
-utau_voice = generate_utau_speech(res, current_ai['voice_folder'])
+        # 💡【音声の自動生成＆再生！】対応するフォルダが存在する場合だけ、自動で鳴り響くのだ！
+        # （ここは半角スペース8マスで揃えるのが大正解なのだ！）
+        utau_voice = generate_utau_speech(res, current_ai['voice_folder'])
         if utau_voice:
-            st.audio(utau_voice, format="audio/wav", autoplay=True)
+            st.audio(utau_voice, format="audio/wav", autoplay=True)  # 🔊 爆速自動再生！

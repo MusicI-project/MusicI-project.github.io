@@ -3,7 +3,7 @@ import numpy as np
 import os
 import sentencepiece as spm
 import gc  # 💡 メモリを強制的に掃除するための秘密兵器なのだ！
-
+import pykakasi
 
 # LiteRT (TensorFlow Lite) のインポート
 try:

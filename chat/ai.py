@@ -98,7 +98,7 @@ def generate_utau_speech(text, folder_name):
     wav_params = None
     
     # 💡 1文字を何ミリ秒の長さに統一したいか決めるのだ（150ms = 0.15秒）
-    EACH_CHAR_MS = 150.0
+    EACH_CHAR_MS = 100.0
     
     # 3. 1文字ずつ切り出して「音声データ（波形データ）」を一定長にして結合
     for char in clean_text:

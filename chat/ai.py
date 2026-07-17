@@ -56,7 +56,7 @@ AI_CHARACTERS = {
 
 USER_ICON_NAME = "user_icon.png"
 def generate_utau_speech(text, folder_name):
-    voice_dir = os.path.join(base_dir, folder_name)
+    voice_dir = os.path.join(BASE_DIR, folder_name)
     if not os.path.exists(voice_dir):
         return None
 
